@@ -3,6 +3,8 @@
 const express = require('express');
 const Twitter = require('twitter');
 
+const firebase = require('./src/firebase');
+
 const app = express();
 
 const client = new Twitter({
@@ -40,6 +42,7 @@ app.get('/search', (req, res, next) => {
 
   client.get('search/tweets', params, (error, data, response) => {
     if (error) return res.status(500);
+    firebase.setTweets(data.statuses);
     res.json(data);
   });
 });
