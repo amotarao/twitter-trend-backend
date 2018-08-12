@@ -93,7 +93,7 @@ app.get('/cron/update_tweet_data', async (req, res, next) => {
   });
 });
 
-const server = app.listen(8080, () => {
+const server = app.listen(process.env.HOST || 8080, () => {
   const host = server.address().address;
   const port = server.address().port;
 
