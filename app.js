@@ -47,6 +47,24 @@ app.get('/search', (req, res, next) => {
   });
 });
 
+/**
+ * ユーザー情報をアップデートする
+ * 1時間おきに最終更新が古い100ユーザーの情報を取得する
+ */
+app.get('/cron/update_user_data', async (req, res, next) => {
+  const users = await firebase.getTwUsersOrderByOlder();
+  const screenNames = users.map(user => user.screen_name);
+  const params = {
+    screen_name: screenNames.join(',')
+  };
+
+  client.get('users/lookup', params, (error, data, response) => {
+    if (error) return res.status(500);
+    firebase.setTwUsers(data);
+    res.json(data);
+  });
+});
+
 const server = app.listen(8080, () => {
   const host = server.address().address;
   const port = server.address().port;

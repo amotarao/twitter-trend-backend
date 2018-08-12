@@ -12,7 +12,7 @@ const db = admin.firestore();
 
 const tweetsRef = db.collection('tweets');
 const twUsersRef = db.collection('tw_users');
-
+const listsRef = db.collection('lists');
 
 class firebase {
   /**
@@ -80,10 +80,13 @@ class firebase {
       id: user.id,
       id_str: user.id_str,
       name: user.name,
+      screen_name: user.screen_name,
       create_at: new Date(user.created_at),
       update_at: new Date(),
       followers_count: user.followers_count,
-      friends_count: user.friends_count
+      friends_count: user.friends_count,
+      profile_image_url: user.profile_image_url,
+      profile_image_url_https: user.profile_image_url_https,
     };
 
     twUsersRef.doc(user.id_str).set(data);
@@ -91,16 +94,72 @@ class firebase {
 
   /**
    * ユーザーを取得する
-   * @param {Number} id ユーザーID
+   * @param {String} id ユーザーID
    */
-  static async getTwUser(id) {
-    twUsersRef.doc(id).get()
-      .then(snapshot => {
-        return snapshot.data();
-      })
-      .catch(err => {
-        console.error(err);
+  static async getTwUserFromID(id) {
+    try {
+      return (await twUsersRef.doc(id).get()).data();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  /**
+   * ユーザーを取得する
+   * @param {*} userRef ユーザー
+   */
+  static async getTwUser(userRef) {
+    try {
+      return (await userRef.get()).data();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  /**
+   * ユーザーを取得する
+   * 最終更新日が古い順に100件取得
+   */
+  static async getTwUsersOrderByOlder() {
+    try {
+      const arr = [];
+      const tweets = await twUsersRef.orderBy('update_at').limit(100).get();
+      tweets.forEach(doc => {
+        arr.push(doc.data());
       });
+      return arr;
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  /**
+   * 指定したリストに入っているユーザーを取得する
+   * @param {String} id リストID
+   */
+  static async getTwUsersFromList(id) {
+    try {
+      return (await listsRef.doc(id).get()).data();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  /**
+   * ユーザーのツイートを取得する
+   * @param {*} userRef ユーザー
+   */
+  static async getTweetsFromUser(userRef) {
+    try {
+      const obj = {};
+      const tweets = await tweetsRef.where('user_ref', '==', userRef).get();
+      tweets.forEach(doc => {
+        obj[doc.id] = doc.data();
+      });
+      return obj;
+    } catch (err) {
+      console.error(err);
+    }
   }
 }
 

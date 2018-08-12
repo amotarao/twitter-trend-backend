@@ -1,0 +1,5 @@
+cron:
+- description: "update_user_data"
+  target: default
+  url: /cron/update_user_data
+  schedule: every 1 hours
