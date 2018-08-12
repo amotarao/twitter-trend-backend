@@ -7,6 +7,16 @@ const firebase = require('./src/firebase');
 
 const app = express();
 
+/**
+ * CORSの許可
+ * のちに消したほうがよさそう
+ */
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
 const client = new Twitter({
   consumer_key: process.env.CONSUMER_KEY,
   consumer_secret: process.env.CONSUMER_SECRET,
