@@ -75,6 +75,24 @@ app.get('/cron/update_user_data', async (req, res, next) => {
   });
 });
 
+/**
+ * ツイート情報をアップデートする
+ * 10分おきに最終更新が古い100ツイートの情報を取得する
+ */
+app.get('/cron/update_tweet_data', async (req, res, next) => {
+  const tweets = await firebase.getTweetsOrderByOlder(14);
+  const tweetIDs = tweets.map(tweet => tweet.id_str);
+  const params = {
+    id: tweetIDs.join(',')
+  };
+
+  client.get('statuses/lookup', params, (error, data, response) => {
+    if (error) return res.status(500);
+    firebase.setTweets(data, false);
+    res.json(data);
+  });
+});
+
 const server = app.listen(8080, () => {
   const host = server.address().address;
   const port = server.address().port;

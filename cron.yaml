@@ -3,3 +3,7 @@ cron:
   target: default
   url: /cron/update_user_data
   schedule: every 1 hours
+- description: "update_tweet_data"
+  target: default
+  url: /cron/update_tweet_data
+  schedule: every 10 minutes

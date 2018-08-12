@@ -134,6 +134,26 @@ class firebase {
   }
 
   /**
+   * ツイートを取得する
+   * 最終更新日が古い順に100件取得
+   */
+  static async getTweetsOrderByOlder(sinceDate = 14) {
+    const date = new Date();
+    date.setDate(date.getDate() - sinceDate);
+
+    try {
+      const arr = [];
+      const tweets = await tweetsRef.where('update_at', '>', date).orderBy('update_at').limit(100).get();
+      tweets.forEach(doc => {
+        arr.push(doc.data());
+      });
+      return arr;
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  /**
    * 指定したリストに入っているユーザーを取得する
    * @param {String} id リストID
    */
